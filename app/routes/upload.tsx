@@ -37,8 +37,12 @@ const upload = () => {
 
     setStatusText("Converting to image...");
     const imageFile = await convertPdfToImage(file);
-    if (!imageFile.file)
-      return setStatusText("Error: Failed to convert PDF to image.");
+    if (!imageFile.file) {
+      // Show the specific error instead of generic message
+      const errorMessage = imageFile.error || "Unknown error occurred";
+      console.error("PDF conversion failed:", errorMessage);
+      return setStatusText(`Error: ${errorMessage}`);
+    }
     setStatusText("Uploading the image...");
     const uploadedImage = await fs.upload([imageFile.file]);
     if (!uploadedImage)
@@ -71,6 +75,7 @@ const upload = () => {
     await kv.set(`resume:${uuid}`, JSON.stringify(data));
     setStatusText("Analysis complete! Redirecting...");
     console.log(data);
+    navigate(`/resume/${uuid}`);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
